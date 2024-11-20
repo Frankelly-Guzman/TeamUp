@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../client';
 import { useNavigate } from 'react-router-dom';
 import Comment from './Comment';
-import { div } from 'framer-motion/client';
 
 const Post = ({ id, title, body, tag, languages, initialComments, onDelete, timestamp }) => {
   const [upvotes, setUpvotes] = useState(0);
