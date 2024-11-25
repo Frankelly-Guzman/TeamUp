@@ -13,7 +13,7 @@ const Footer = () => {
         <div className='flex gap-4'>
           <a href='/about' className='hover:text-gray-400 transition-all duration-300'>About</a>
           <a href='/contact' className='hover:text-gray-400 transition-all duration-300'>Contact</a>
-          <a href='/privacy' className='hover:text-gray-400 transition-all duration-300'>Privacy Policy</a>
+          <a href='/user-policy' className='hover:text-gray-400 transition-all duration-300'>Privacy Policy</a>
         </div>
       </div>
     </footer>

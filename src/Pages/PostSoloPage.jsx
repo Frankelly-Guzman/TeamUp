@@ -6,6 +6,8 @@ const SinglePostPage = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
+  const [postOwner, setPostOwner] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +15,7 @@ const SinglePostPage = () => {
       // Fetch the post
       const { data: postData, error: postError } = await supabase
         .from('Posts')
-        .select('*')
+        .select('*, owner:UserProfile(user_id, first_name, last_name, avatar_url)')
         .eq('id', id)
         .single();
 
@@ -21,6 +23,7 @@ const SinglePostPage = () => {
         console.error('Error fetching post:', postError.message);
       } else {
         setPost(postData);
+        setPostOwner(postData.owner);
       }
 
       // Fetch comments for the post
@@ -34,6 +37,10 @@ const SinglePostPage = () => {
       } else {
         setComments(commentsData);
       }
+
+      // Fetch current user ID
+      const { data: { session } } = await supabase.auth.getSession();
+      setCurrentUserId(session?.user?.id || null);
     };
 
     fetchPostAndComments();
@@ -69,7 +76,7 @@ const SinglePostPage = () => {
           throw postError;
         }
 
-        navigate('/posts');  // Navigate back to the posts list
+        navigate('/posts'); // Navigate back to the posts list
       } catch (error) {
         console.error('Error deleting post:', error.message);
         alert('There was an error deleting the post. Please try again.');
@@ -80,6 +87,8 @@ const SinglePostPage = () => {
   if (!post) {
     return <p className="text-center py-10">Loading...</p>;
   }
+
+  const isPostOwner = currentUserId === post.owner?.user_id;
 
   // Clean and parse languages if they exist
   const parsedLanguages = post.languages
@@ -94,6 +103,28 @@ const SinglePostPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
+      {/* Owner Details */}
+      <div className="flex items-center mb-6">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300 mr-4">
+          <a href={`/profile/${postOwner?.user_id}`}>
+            <img
+              src={postOwner?.avatar_url || 'https://via.placeholder.com/150'}
+              alt={`${postOwner?.first_name || 'User'}'s Avatar`}
+              className="w-full h-full object-cover"
+            />
+          </a>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">
+            <a href={`/profile/${postOwner?.user_id}`}>
+              {postOwner?.first_name} {postOwner?.last_name}
+            </a>
+          </h2>
+          <p className="text-gray-500 text-sm">Post Owner</p>
+        </div>
+      </div>
+
+      {/* Post Details */}
       <h1 className="text-3xl font-bold text-gray-800 mb-4">{post.title}</h1>
       <p className="text-gray-600 text-lg mb-6">{post.body}</p>
       <span className="inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-500 rounded-full">
@@ -119,6 +150,7 @@ const SinglePostPage = () => {
         <p className="text-gray-500 mt-2">No languages specified</p>
       )}
 
+      {/* Comments Section */}
       <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">Comments</h2>
       <div className="space-y-4">
         {comments.length > 0 ? (
@@ -133,15 +165,26 @@ const SinglePostPage = () => {
         )}
       </div>
 
-      {/* Delete Post Button */}
-      <div className="delete-post mt-4">
-        <button
-          className="delete-post-button px-4 py-2 bg-red-500 text-white rounded-md"
-          onClick={handleRemovePost}
-        >
-          Delete Post
-        </button>
-      </div>
+      {/* Edit/Delete Buttons */}
+      {isPostOwner && (
+        <div className="flex justify-end mt-6 space-x-4">
+          <button
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+            onClick={() => {
+              console.log('Edit post:', post.id);
+              navigate(`/edit-post/${post.id}`)
+            }}
+          >
+            Edit
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded-md"
+            onClick={handleRemovePost}
+          >
+            Delete
+          </button>
+        </div>
+      )}
 
       <div className="mt-4">
         <span className="text-gray-500 opacity-75">Created: {formattedDate}</span>

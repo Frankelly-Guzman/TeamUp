@@ -1,0 +1,26 @@
+// disciplines.js
+export const disciplines = [
+  "Web Development",
+  "Full Stack Development",
+  "Frontend Development",
+  "Backend Development",
+  "Mobile App Development",
+  "Game Development",
+  "Data Engineering",
+  "Machine Learning",
+  "Artificial Intelligence",
+  "Cloud Computing",
+  "Cybersecurity",
+  "DevOps",
+  "Blockchain Development",
+  "Embedded Systems Development",
+  "AR/VR Development",
+  "UI/UX Design",
+  "Software Testing",
+  "Big Data Analytics",
+  "Internet of Things (IoT)",
+  "Database Management",
+  "Network Administration",
+  "Quantum Computing",
+  // Add more disciplines as needed
+];
